@@ -12,18 +12,30 @@ import java.io.PrintWriter;
  */
 public class FixFmServlet extends HttpServlet {
 
-
-
+    private String token;
+    private Object lock = new Object();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
-        FixFmApp fixFmApp = new FixFmApp();
-        fixFmApp.process(req);
-        PrintWriter responseWriter = resp.getWriter();
-        responseWriter.print("<p>Done.</p> <p>Wrong scrobbles are gone.</p> ");
-        responseWriter.close();
+        token = req.getParameter("token");
+        lock.notify();
     }
 
-
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        FixFmApp fixFmApp = new FixFmApp();
+        fixFmApp.extractParams(req);
+        while (token == null) {
+            try {
+                lock.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        fixFmApp.setToken(token);
+        String result = fixFmApp.process();
+        PrintWriter responseWriter = resp.getWriter();
+        responseWriter.print(result);
+        responseWriter.close();
+    }
 }

@@ -13,7 +13,7 @@
 <div id="header"><h1>FixFm Service</h1></div>
 <div><h4>A simple way to fix your wrong Last.fm tags.</h4></div>
 <div class="form-block">
-    <form role="form">
+    <form id="form" role="form">
         <div class="form-group">
             <label for="login">Login</label>
             <input type="text" class="form-control" id="login" placeholder="Enter login">
