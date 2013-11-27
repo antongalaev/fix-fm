@@ -8,6 +8,8 @@ $(document).ready(function(){
             .css("color", "#2C3E50")
             .css("font-weight", "bold");
 
+
+
         $.get("ajax/", function(data) {
             clearInterval(timer);
             $(".form-block").html(data);

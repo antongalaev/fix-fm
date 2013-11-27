@@ -11,7 +11,7 @@
 
     <servlet>
         <servlet-name>ajax</servlet-name>
-        <servlet-class>com.galaev.fixfm.FixFmApp</servlet-class>
+        <servlet-class>com.galaev.fixfm.FixFmServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>ajax</servlet-name>
