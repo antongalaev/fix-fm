@@ -7,20 +7,22 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.json.Json;
 import javax.json.JsonObject;
-import javax.json.JsonReader;
 import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
+import java.net.URLEncoder;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -39,6 +41,8 @@ public class FixFmApp {
 
     // Responses
     private static final String FIX_DONE = "<p>Done.</p> <p>Wrong scrobbles are gone.</p> ";
+    private static final String FIX_ERROR = "<p>Sorry.</p> <p>Something went wrong. Try again later.</p> ";
+
 
     private CloseableHttpClient httpClient = HttpClients.createDefault();
     private String login;
@@ -47,16 +51,26 @@ public class FixFmApp {
     private String oldTag;
     private String newTag;
     private String token;
-    private String sessionKey;
+    private String sessionKey = "2c7535be5370f6834c9feb4a51f6d122";
     private int playcount;
 
-    public String process() throws IOException {
-        // user authentication
-        authenticate();
-        // find out track playcount
-        findTrackPlaycount();
-
-
+    public String process()  {
+        try{
+            // user authentication
+//            authenticate();
+            // find out track playcount
+            findTrackPlaycount();
+            // actually fix
+            fix();
+        } catch (IOException e) {
+            logger.error("IO Exception: " + e);
+            logger.error("Stacktrace: " + Arrays.toString(e.getStackTrace()));
+            return FIX_ERROR;
+        } catch (Exception e) {
+            logger.error("Unknown exception: " + e);
+            logger.error("Stacktrace: " + Arrays.toString(e.getStackTrace()));
+            return FIX_ERROR;
+        }
         return FIX_DONE;
     }
 
@@ -78,7 +92,7 @@ public class FixFmApp {
             JsonObject jsonResponse = Json.createReader(entity.getContent()).readObject();
             sessionKey = jsonResponse.getJsonObject("session").getString("key");
             String sessionLogin = jsonResponse.getJsonObject("session").getString("name");
-            logger.info("Logged as " + sessionLogin);
+            logger.info("Logged as " + sessionLogin + " with sk = " + sessionKey);
         }
     }
 
@@ -88,29 +102,21 @@ public class FixFmApp {
     }
 
     private void removeTrack() throws IOException {
-        // create request and its entity form (alphabetically sorted!!)
+        // create request and its entity form (alphabetically sorted here)
         HttpPost removeRequest = new HttpPost(API_ROOT_URL);
         List<NameValuePair> form = new ArrayList<>();
         form.add(new BasicNameValuePair("api_key", API_KEY));
         form.add(new BasicNameValuePair("artist", artist));
-
+        form.add(new BasicNameValuePair("method", "library.removeTrack"));
         form.add(new BasicNameValuePair("sk", sessionKey));
         form.add(new BasicNameValuePair("track", oldTag));
         form.add(new BasicNameValuePair("api_sig", signApiPostCall(form)));
         // set request entity
-        try {
-            removeRequest.setEntity(new UrlEncodedFormEntity(form));
-        } catch (UnsupportedEncodingException e) {
-            logger.error("Error with url-encoded form removing track");
-            e.printStackTrace();
-        }
+        removeRequest.setEntity(new UrlEncodedFormEntity(form));
         // execute request
         try (CloseableHttpResponse authResponse = httpClient.execute(removeRequest)) {
             HttpEntity entity = authResponse.getEntity();
-            JsonObject jsonResponse = Json.createReader(entity.getContent()).readObject();
-            sessionKey = jsonResponse.getJsonObject("sessionKey").getString("key");
-            String sessionLogin = jsonResponse.getJsonObject("sessionKey").getString("name");
-            logger.info("Logged as " + sessionLogin);
+            logger.info("Removing tracks response: " + EntityUtils.toString(entity));
         }
     }
 
@@ -119,55 +125,47 @@ public class FixFmApp {
         HttpPost removeRequest = new HttpPost(API_ROOT_URL);
         List<NameValuePair> form = new ArrayList<>();
         String timestamp = String.valueOf(System.currentTimeMillis() / 1000 - 10000);
-
-
-        form.add(new BasicNameValuePair("album", album));
-        form.add(new BasicNameValuePair("artist", artist));
-        timestamp += 300;
-        form.add(new BasicNameValuePair("timestamp", timestamp));
-        form.add(new BasicNameValuePair("track", newTag));
-
-
-
+        // add array of scrobbles
+        for (int i = 0; i < playcount; ++ i) {
+            form.add(new BasicNameValuePair("album[" + i + "]", album));
+            form.add(new BasicNameValuePair("artist[" + i + "]", artist));
+            timestamp += 300;
+            form.add(new BasicNameValuePair("timestamp[" + i + "]", timestamp));
+            form.add(new BasicNameValuePair("track[" + i + "]", newTag));
+        }
+        // add single parameters
         form.add(new BasicNameValuePair("api_key", API_KEY));
         form.add(new BasicNameValuePair("method", "track.scrobble"));
         form.add(new BasicNameValuePair("sk", sessionKey));
-
-
-
+        // sort parameters
+        Collections.sort(form, new Comparator<NameValuePair>() {
+            @Override
+            public int compare(NameValuePair o1, NameValuePair o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
+        // calculate signature
         form.add(new BasicNameValuePair("api_sig", signApiPostCall(form)));
         // set request entity
-        try {
-            removeRequest.setEntity(new UrlEncodedFormEntity(form));
-        } catch (UnsupportedEncodingException e) {
-            logger.error("Error with url-encoded form removing track");
-            e.printStackTrace();
-        }
+        removeRequest.setEntity(new UrlEncodedFormEntity(form));
         // execute request
         try (CloseableHttpResponse authResponse = httpClient.execute(removeRequest)) {
             HttpEntity entity = authResponse.getEntity();
-            JsonObject jsonResponse = Json.createReader(entity.getContent()).readObject();
-            sessionKey = jsonResponse.getJsonObject("sessionKey").getString("key");
-            String sessionLogin = jsonResponse.getJsonObject("sessionKey").getString("name");
-            logger.info("Logged as " + sessionLogin);
+            logger.info("Scrobbling tracks response: " + EntityUtils.toString(entity));
         }
     }
 
 
     private void findTrackPlaycount() throws IOException {
-        String authURL = new StringBuilder()
+        StringBuilder authURL =  new StringBuilder()
                 .append(API_ROOT_URL)
                 .append("?method=track.getInfo&api_key=")
-                .append(API_KEY)
-                .append("&artist=")
-                .append(artist)
-                .append("&track=")
-                .append(oldTag)
-                .append("&username=")
-                .append(login)
-                .append("&format=json")
-                .toString();
-        HttpGet authRequest = new HttpGet(authURL);
+                .append(API_KEY);
+        authURL.append("&artist=").append(urlencode(artist));
+        authURL.append("&track=").append(urlencode(oldTag));
+        authURL.append("&username=").append(login).append("&format=json");
+
+        HttpGet authRequest = new HttpGet(authURL.toString());
         try (CloseableHttpResponse authResponse = httpClient.execute(authRequest)) {
             HttpEntity entity = authResponse.getEntity();
             JsonObject jsonResponse = Json.createReader(entity.getContent()).readObject();
@@ -198,13 +196,20 @@ public class FixFmApp {
         return DigestUtils.md5Hex(signed.toString());
     }
 
+    private String urlencode(String value) throws UnsupportedEncodingException {
+        return URLEncoder.encode(value, "UTF-8");
+    }
+
     public void extractParams(HttpServletRequest request) {
         login = request.getParameter("login");
         artist = request.getParameter("artist");
         album = request.getParameter("album");
-        oldTag = request.getParameter("oldtag");
-        newTag = request.getParameter("newtag");
+        oldTag = request.getParameter("old");
+        newTag = request.getParameter("new");
+        logger.info("parameters map " + request.getParameterMap());
     }
+
+
 
     public void setToken(String token) {
         this.token = token;

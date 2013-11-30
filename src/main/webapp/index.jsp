@@ -16,23 +16,23 @@
     <form id="form" role="form">
         <div class="form-group">
             <label for="login">Login</label>
-            <input type="text" class="form-control" id="login" placeholder="Enter login">
+            <input type="text" class="form-control" id="login" name="login" placeholder="Enter login">
         </div>
         <div class="form-group">
             <label for="artist">Artist</label>
-            <input type="text" class="form-control" id="artist" placeholder="Enter artist">
+            <input type="text" class="form-control" id="artist" name="artist" placeholder="Enter artist">
         </div>
         <div class="form-group">
             <label for="artist">Album</label>
-            <input type="text" class="form-control" id="album" placeholder="Enter album">
+            <input type="text" class="form-control" id="album" name="album" placeholder="Enter album">
         </div>
         <div class="form-group">
             <label for="old">Old Song Tag</label>
-            <input type="text" class="form-control" id="old" placeholder="Enter old tag">
+            <input type="text" class="form-control" id="old" name="old" placeholder="Enter old tag">
         </div>
         <div class="form-group">
             <label for="new">New Song Tag</label>
-            <input type="text" class="form-control" id="new" placeholder="Enter new tag">
+            <input type="text" class="form-control" id="new" name="new" placeholder="Enter new tag">
         </div>
         <button type="button" class="btn btn-success btn-lg" style="background-color: #16A085;">Fix</button>
     </form>

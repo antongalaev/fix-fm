@@ -23,17 +23,21 @@ public class FixFmServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        // create app and extract all parameters
         FixFmApp fixFmApp = new FixFmApp();
         fixFmApp.extractParams(req);
-        while (token == null) {
-            try {
-                lock.wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        fixFmApp.setToken(token);
+        // wait for token acquiring
+//        while (token == null) {
+//            try {
+//                lock.wait();
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        fixFmApp.setToken(token);
+        // process the request
         String result = fixFmApp.process();
+        // output the result
         PrintWriter responseWriter = resp.getWriter();
         responseWriter.print(result);
         responseWriter.close();
