@@ -1,4 +1,9 @@
+import com.galaev.fixfm.FixFmApp;
 import org.junit.Test;
+
+import javax.json.Json;
+import javax.json.JsonObject;
+import java.io.IOException;
 
 /**
  * User: anton
@@ -7,9 +12,18 @@ import org.junit.Test;
  */
 public class ParamsTest {
 
-    @Test
-    public void firstTest() {
+    String token = "050d82671f7d373db99df16e63b77050";
+    FixFmApp sut = new FixFmApp();
 
+    @Test
+    public void firstTest() throws IOException {
+//        sut.setToken(token);
+//        sut.authenticate();
+
+        JsonObject obj = Json.createObjectBuilder().add("track", Json.createObjectBuilder().add("playcount", "1").build()).build();
+        int playcount = obj.getJsonObject("track").getInt("playcount");
+        System.out.println(playcount);
     }
+
 
 }
