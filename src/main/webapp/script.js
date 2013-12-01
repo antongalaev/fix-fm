@@ -4,7 +4,7 @@ $(document).ready(function(){
     $(".btn").click(function() {
 
         // go for a token
-        //window.open("http://www.last.fm/api/auth/?api_key=599a9514090a65b21d9c7d0e47605090");
+        window.open("http://www.last.fm/api/auth/?api_key=599a9514090a65b21d9c7d0e47605090");
 
         // send request for fixing and show result
         $.post("ajax/", $("#form").serialize(), function(data) {

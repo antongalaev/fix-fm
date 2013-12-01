@@ -23,6 +23,10 @@ public class ParamsTest {
 
     @Test
     public void firstTest() throws IOException {
+        String abc = "1000";
+        abc += 300;
+        System.out.println(abc);
+
   //      sut.setToken(token);
    //     sut.authenticate();
 //        List<NameValuePair> form = new ArrayList<>();

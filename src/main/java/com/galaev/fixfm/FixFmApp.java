@@ -51,13 +51,13 @@ public class FixFmApp {
     private String oldTag;
     private String newTag;
     private String token;
-    private String sessionKey = "2c7535be5370f6834c9feb4a51f6d122";
+    private String sessionKey;
     private int playcount;
 
     public String process()  {
         try{
             // user authentication
-//            authenticate();
+            authenticate();
             // find out track playcount
             findTrackPlaycount();
             // actually fix
@@ -107,6 +107,7 @@ public class FixFmApp {
         List<NameValuePair> form = new ArrayList<>();
         form.add(new BasicNameValuePair("api_key", API_KEY));
         form.add(new BasicNameValuePair("artist", artist));
+//        form.add(new BasicNameValuePair("format", "json"));
         form.add(new BasicNameValuePair("method", "library.removeTrack"));
         form.add(new BasicNameValuePair("sk", sessionKey));
         form.add(new BasicNameValuePair("track", oldTag));
@@ -124,17 +125,18 @@ public class FixFmApp {
         // create request and its entity (form)
         HttpPost removeRequest = new HttpPost(API_ROOT_URL);
         List<NameValuePair> form = new ArrayList<>();
-        String timestamp = String.valueOf(System.currentTimeMillis() / 1000 - 10000);
+        long timestamp = System.currentTimeMillis() / 1000 - 10000;
         // add array of scrobbles
         for (int i = 0; i < playcount; ++ i) {
             form.add(new BasicNameValuePair("album[" + i + "]", album));
             form.add(new BasicNameValuePair("artist[" + i + "]", artist));
             timestamp += 300;
-            form.add(new BasicNameValuePair("timestamp[" + i + "]", timestamp));
+            form.add(new BasicNameValuePair("timestamp[" + i + "]", String.valueOf(timestamp)));
             form.add(new BasicNameValuePair("track[" + i + "]", newTag));
         }
         // add single parameters
         form.add(new BasicNameValuePair("api_key", API_KEY));
+//        form.add(new BasicNameValuePair("format", "json"));
         form.add(new BasicNameValuePair("method", "track.scrobble"));
         form.add(new BasicNameValuePair("sk", sessionKey));
         // sort parameters
@@ -233,5 +235,9 @@ public class FixFmApp {
 
     public String getNewTag() {
         return newTag;
+    }
+
+    public String getToken() {
+        return token;
     }
 }
