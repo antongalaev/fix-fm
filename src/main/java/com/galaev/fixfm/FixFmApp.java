@@ -7,7 +7,6 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
@@ -18,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.servlet.http.HttpServletRequest;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -76,16 +74,8 @@ public class FixFmApp {
 
     public void authenticate() throws IOException {
         String api_sig = signApiGetCall("auth.getSession");
-        String authURL = new StringBuilder()
-                .append(API_ROOT_URL)
-                .append("?method=auth.getSession&api_key=")
-                .append(API_KEY)
-                .append("&api_sig=")
-                .append(api_sig)
-                .append("&token=")
-                .append(token)
-                .append("&format=json")
-                .toString();
+        String authURL = API_ROOT_URL + "?method=auth.getSession&api_key=" + API_KEY
+                + "&api_sig=" + api_sig + "&token=" + token + "&format=json";
         HttpGet authRequest = new HttpGet(authURL);
         try (CloseableHttpResponse authResponse = httpClient.execute(authRequest)) {
             HttpEntity entity = authResponse.getEntity();
@@ -93,6 +83,24 @@ public class FixFmApp {
             sessionKey = jsonResponse.getJsonObject("session").getString("key");
             String sessionLogin = jsonResponse.getJsonObject("session").getString("name");
             logger.info("Logged as " + sessionLogin + " with sk = " + sessionKey);
+        }
+    }
+
+    private void findTrackPlaycount() throws IOException {
+        StringBuilder authURL =  new StringBuilder()
+                .append(API_ROOT_URL)
+                .append("?method=track.getInfo&api_key=")
+                .append(API_KEY);
+        authURL.append("&artist=").append(urlencode(artist));
+        authURL.append("&track=").append(urlencode(oldTag));
+        authURL.append("&username=").append(login).append("&format=json");
+
+        HttpGet authRequest = new HttpGet(authURL.toString());
+        try (CloseableHttpResponse authResponse = httpClient.execute(authRequest)) {
+            HttpEntity entity = authResponse.getEntity();
+            JsonObject jsonResponse = Json.createReader(entity.getContent()).readObject();
+            playcount = Integer.parseInt(jsonResponse.getJsonObject("track").getString("userplaycount"));
+            logger.info("Userplaycount extracted: " + playcount);
         }
     }
 
@@ -120,6 +128,7 @@ public class FixFmApp {
             logger.info("Removing tracks response: " + EntityUtils.toString(entity));
         }
     }
+
 
     private void scrobbleTrack() throws IOException {
         // create request and its entity (form)
@@ -154,25 +163,6 @@ public class FixFmApp {
         try (CloseableHttpResponse authResponse = httpClient.execute(removeRequest)) {
             HttpEntity entity = authResponse.getEntity();
             logger.info("Scrobbling tracks response: " + EntityUtils.toString(entity));
-        }
-    }
-
-
-    private void findTrackPlaycount() throws IOException {
-        StringBuilder authURL =  new StringBuilder()
-                .append(API_ROOT_URL)
-                .append("?method=track.getInfo&api_key=")
-                .append(API_KEY);
-        authURL.append("&artist=").append(urlencode(artist));
-        authURL.append("&track=").append(urlencode(oldTag));
-        authURL.append("&username=").append(login).append("&format=json");
-
-        HttpGet authRequest = new HttpGet(authURL.toString());
-        try (CloseableHttpResponse authResponse = httpClient.execute(authRequest)) {
-            HttpEntity entity = authResponse.getEntity();
-            JsonObject jsonResponse = Json.createReader(entity.getContent()).readObject();
-            playcount = Integer.parseInt(jsonResponse.getJsonObject("track").getString("userplaycount"));
-            logger.info("Userplaycount extracted: " + playcount);
         }
     }
 
