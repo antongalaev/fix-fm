@@ -2,17 +2,13 @@ var timer;
 
 $(document).ready(function(){
     $(".btn").click(function() {
-
-        // go for a token
-        window.open("http://www.last.fm/api/auth/?api_key=599a9514090a65b21d9c7d0e47605090");
-
-        // send request for fixing and show result
+        // send request for fixing the scrobbles and show the result
         $.post("ajax/", $("#form").serialize(), function(data) {
             clearInterval(timer);
             $(".form-block").html(data);
         });
 
-        // clear place on the page, style up
+        // clear place on the page, style it
         $("form").remove();
         $(".form-block").append("Wait a little bit for response")
             .append("<span class='dots'></span>")
@@ -20,11 +16,12 @@ $(document).ready(function(){
             .css("font-weight", "bold");
 
         // "animate" dots
+        var dots = $(".dots");
         timer = setInterval(function() {
-            if ($(".dots").text() == "...") {
-                $(".dots").text(".");
+            if (dots.text() == "...") {
+               dots.text(".");
             } else {
-                $(".dots").append(".");
+                dots.append(".");
             }
         }, 500)
     });

@@ -1,5 +1,7 @@
 package com.galaev.fixfm.model;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * Created with IntelliJ IDEA.
  * User: anton
@@ -13,6 +15,13 @@ public class Track {
     private String oldTag;
     private String newTag;
     private int playcount;
+
+    public void populateWithPostData(HttpServletRequest request) {
+        artist = request.getParameter("artist");
+        album = request.getParameter("album");
+        oldTag = request.getParameter("old");
+        newTag = request.getParameter("new");
+    }
 
     public String getAlbum() {
         return album;

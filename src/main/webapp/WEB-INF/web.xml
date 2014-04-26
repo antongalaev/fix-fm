@@ -6,12 +6,31 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>index</servlet-name>
-        <url-pattern>/main/*</url-pattern>
+        <url-pattern>/index/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>fix</servlet-name>
+        <jsp-file>/fix.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>fix</servlet-name>
+        <url-pattern>/fix/*</url-pattern>
+    </servlet-mapping>
+
+
+    <servlet>
+        <servlet-name>auth</servlet-name>
+        <servlet-class>com.galaev.fixfm.AuthServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>auth</servlet-name>
+        <url-pattern>/auth/*</url-pattern>
     </servlet-mapping>
 
     <servlet>
         <servlet-name>ajax</servlet-name>
-        <servlet-class>com.galaev.fixfm.FixFmServlet</servlet-class>
+        <servlet-class>com.galaev.fixfm.AjaxServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>ajax</servlet-name>
