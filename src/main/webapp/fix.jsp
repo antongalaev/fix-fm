@@ -1,9 +1,14 @@
+<%@ page import="org.slf4j.Logger" %>
+<%@ page import="org.slf4j.LoggerFactory" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%! static Logger logger = LoggerFactory.getLogger("fix"); %>
 <%
     String token = request.getParameter("token");
     if (token != null) {
         session.setAttribute("token", token);
+        logger.info("Token acquired: " + token);
     }
+    logger.info("Token is null");
 %>
 <html>
 <head>

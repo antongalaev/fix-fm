@@ -13,8 +13,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -25,16 +23,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
- * Created with IntelliJ IDEA.
- * User: anton
- * Date: 25/04/2014
- * Time: 19:18
+ * This class is intended to work with Last.fm API methods.
+ *
+ * @author Anton Galaev
  */
 public class LastFmApi {
 
-    private static Logger logger = LoggerFactory.getLogger(LastFmApi.class);
+    private static Logger logger = Logger.getLogger(String.valueOf(LastFmApi.class));
 
     // API constants
     private static final String API_ROOT_URL = "http://ws.audioscrobbler.com/2.0/";
@@ -47,16 +45,31 @@ public class LastFmApi {
     private static final String API_CALL_FIND_PLAYCOUNT = API_ROOT_URL + "?method=track.getInfo&api_key=" +API_KEY +
             "&artist=%s&track=%s&username=%s&format=json";
 
-
+    // http client
     private CloseableHttpClient httpClient = HttpClients.createDefault();
 
+    // user, that wants to fix tags
     private User user;
 
+    /**
+     * Public constructor, that creates
+     * new Api object to work with the provided user.
+     *
+     * @param user user, that wants to fix tags
+     */
     public LastFmApi(User user) {
         this.user = user;
     }
 
+    /**
+     * Gets user session key from Last.fm api.
+     * Sets the session key field in the {@code User} object here.
+     *
+     * @return session key
+     * @throws IOException
+     */
     public String setUserSessionKey() throws IOException {
+        logger.info("Trying to get user session key.");
         // sign api call
         String api_sig = signApiGetCall("auth.getSession");
         // construct url
@@ -73,7 +86,16 @@ public class LastFmApi {
         }
     }
 
+    /**
+     * Gets track playcount from Last.fm Api.
+     * Sets the corresponding field in the provided {@code Track} object.
+     *
+     * @param track track to find playcount for
+     * @return playcount
+     * @throws IOException
+     */
     public int setTrackPlaycount(Track track) throws IOException {
+        logger.info("Trying to get playcount.");
         // construct url
         String url = String.format(API_CALL_FIND_PLAYCOUNT,
                 urlencode(track.getArtist()), urlencode(track.getOldTag()), user.getLogin());
@@ -89,7 +111,14 @@ public class LastFmApi {
         }
     }
 
+    /**
+     * Removes track from user library.
+     *
+     * @param track track to remove
+     * @throws IOException
+     */
     public void removeTrack(Track track) throws IOException {
+        logger.info("Trying to remove track from library.");
         // create request and its entity form (alphabetically sorted here)
         HttpPost removeRequest = new HttpPost(API_ROOT_URL);
         List<NameValuePair> form = new ArrayList<>();
@@ -109,7 +138,14 @@ public class LastFmApi {
         }
     }
 
+    /**
+     * Scrobbles track to user library.
+     *
+     * @param track track to scrobble
+     * @throws IOException
+     */
     public void scrobbleTrack(Track track) throws IOException {
+        logger.info("Trying to scrobble track to the library.");
         // create request and its entity (form)
         HttpPost scrobbleRequest = new HttpPost(API_ROOT_URL);
         List<NameValuePair> form = new ArrayList<>();
@@ -145,11 +181,23 @@ public class LastFmApi {
         }
     }
 
+    /**
+     * Signs api GET call following Last.fm API rules.
+     *
+     * @param method api method to call
+     * @return signed string
+     */
     private String signApiGetCall(String method) {
         String signed = "api_key" + API_KEY + "method" + method + "token" + user.getToken() + API_SECRET;
         return DigestUtils.md5Hex(signed);
     }
 
+    /**
+     * Signs api POST call following Last.fm API rules.
+     *
+     * @param form http post form
+     * @return signed string
+     */
     private String signApiPostCall(List<NameValuePair> form) {
         StringBuilder signed = new StringBuilder();
         for (NameValuePair pair : form) {
@@ -159,6 +207,14 @@ public class LastFmApi {
         return DigestUtils.md5Hex(signed.toString());
     }
 
+    /**
+     * Urlencode a string in utf-8 encoding.
+     * It is used to urlencode GET method parameters.
+     *
+     * @param value string to encode
+     * @return utf-8 encoded string
+     * @throws UnsupportedEncodingException
+     */
     private String urlencode(String value) throws UnsupportedEncodingException {
         return URLEncoder.encode(value, "UTF-8");
     }

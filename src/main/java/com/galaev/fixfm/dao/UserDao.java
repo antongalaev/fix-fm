@@ -1,14 +1,18 @@
 package com.galaev.fixfm.dao;
 
 import com.galaev.fixfm.model.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.*;
+import java.util.logging.Logger;
 
+/**
+ * This class represents a data access object for {@code User}.
+ *
+ * @author Anton Galaev
+ */
 public class UserDao {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserDao.class);
+    private static Logger logger = Logger.getLogger(String.valueOf(UserDao.class));
 
     // db credentials
     private static final String DB_URL = "jdbc:mysql://localhost/fixfm";
@@ -26,7 +30,11 @@ public class UserDao {
     private PreparedStatement ps = null;
     private Connection conn = null;
 
-
+    /**
+     * Insert a user into db.
+     * @param user a user
+     * @throws SQLException
+     */
     public void insert(User user) throws SQLException {
         try {
             conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
@@ -35,14 +43,19 @@ public class UserDao {
             ps.setString(2, user.getToken());
             ps.executeUpdate();
         } catch (SQLException e) {
-            logger.error(e.getMessage());
+            logger.severe(e.getMessage());
             throw e;
         } finally {  // close result sets, statements and connection
             close();
         }
     }
 
-    
+    /**
+     * Updates user token.
+     *
+     * @param user a user
+     * @throws SQLException
+     */
     public void update(User user) throws SQLException {
         try {
             conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
@@ -51,14 +64,19 @@ public class UserDao {
             ps.setString(2, user.getLogin());
             ps.executeUpdate();
         } catch (SQLException e) {
-            logger.error(e.getMessage());
+            logger.severe(e.getMessage());
             throw e;
         } finally {  // close result sets, statements and connection
             close();
         }
     }
 
-    
+    /**
+     * Deletes a user from db.
+     *
+     * @param login user login (primary key)
+     * @throws SQLException
+     */
     public void deleteByLogin(String login) throws SQLException {
         try {
             conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
@@ -66,14 +84,20 @@ public class UserDao {
             ps.setString(1, login);
             ps.executeUpdate();
         } catch (SQLException e) {
-            logger.error(e.getMessage());
+            logger.severe(e.getMessage());
             throw e;
         } finally {  // close result sets, statements and connection
             close();
         }
     }
 
-    
+    /**
+     * Finds a user with a provided login
+     *
+     * @param login login user login (primary key)
+     * @return user with the login
+     * @throws SQLException
+     */
     public User selectByLogin(String login) throws SQLException {
         User result = null;
         try {
@@ -89,14 +113,13 @@ public class UserDao {
                 result.setToken(token);
             }
         } catch (SQLException e) {
-            logger.error(e.getMessage());
+            logger.severe(e.getMessage());
             throw e;
         } finally {  // close result sets, statements and connection
             close();
         }
         return result;
     }
-
 
     /**
      * Closes all database resources.

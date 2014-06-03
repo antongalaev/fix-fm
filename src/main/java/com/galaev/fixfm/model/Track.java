@@ -3,25 +3,36 @@ package com.galaev.fixfm.model;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * Created with IntelliJ IDEA.
- * User: anton
- * Date: 24/04/2014
- * Time: 19:33
+ * This class represents a music track.
+ *
+ * @author Anton Galaev
  */
 public class Track {
 
+    // artist name
     private String artist;
+    // album name
     private String album;
+    // old song title
     private String oldTag;
+    // new song title
     private String newTag;
+    // song playcount
     private int playcount;
 
+    /**
+     * Fills track object with data from request parameters.
+     *
+     * @param request http request
+     */
     public void populateWithPostData(HttpServletRequest request) {
         artist = request.getParameter("artist");
         album = request.getParameter("album");
         oldTag = request.getParameter("old");
         newTag = request.getParameter("new");
     }
+
+    // Getters and setters
 
     public String getAlbum() {
         return album;

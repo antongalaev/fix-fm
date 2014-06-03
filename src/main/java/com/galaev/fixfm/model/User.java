@@ -1,16 +1,20 @@
 package com.galaev.fixfm.model;
 
 /**
- * Created with IntelliJ IDEA.
- * User: anton
- * Date: 24/04/2014
- * Time: 19:33
+ * This class represents a Last.fm user.
+ *
+ * @author Anton Galaev
  */
 public class User {
 
+    // user login
     private String login;
+    // user token
     private String token;
+    // user session key
     private String sessionKey;
+
+    // Getters and setters
 
     public String getLogin() {
         return login;
