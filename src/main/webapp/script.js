@@ -1,6 +1,9 @@
 var timer;
 
 $(document).ready(function(){
+    $("#header").click(function() {
+        location.href = "/fixfm";
+    });
     $(".btn").click(function() {
         // send request for fixing the scrobbles and show the result
         $.post("ajax/", $("#form").serialize(), function(data) {

@@ -1,7 +1,6 @@
-<%@ page import="org.slf4j.Logger" %>
-<%@ page import="org.slf4j.LoggerFactory" %>
+<%@ page import="java.util.logging.Logger" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%! static Logger logger = LoggerFactory.getLogger("fix"); %>
+<%! static Logger logger = Logger.getLogger("fix"); %>
 <%
     String token = request.getParameter("token");
     if (token != null) {
@@ -25,10 +24,6 @@
 <div class="form-block">
     <form id="form" role="form">
         <div class="form-group">
-            <label for="login">Login</label>
-            <input type="text" class="form-control" id="login" name="login" placeholder="Enter login">
-        </div>
-        <div class="form-group">
             <label for="artist">Artist</label>
             <input type="text" class="form-control" id="artist" name="artist" placeholder="Enter artist">
         </div>
@@ -44,7 +39,7 @@
             <label for="new">New Song Tag</label>
             <input type="text" class="form-control" id="new" name="new" placeholder="Enter new tag">
         </div>
-        <button type="button" class="btn btn-success btn-lg" style="background-color: #16A085;">Fix</button>
+        <button type="button" class="btn btn-success btn-lg">Fix</button>
     </form>
 </div>
 

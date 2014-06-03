@@ -16,7 +16,7 @@
             <label for="login">Login</label>
             <input type="text" class="form-control" id="login" name="login" placeholder="Enter login">
         </div>
-        <input type="submit" class="btn btn-success btn-lg" style="background-color: #16A085;">Connect to the app</button>
+        <input type="submit" class="btn btn-success btn-lg" value="Connect to the app">
     </form>
 </div>
 

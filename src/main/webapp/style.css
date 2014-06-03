@@ -34,3 +34,11 @@ button {
 .form-control {
     padding: 6px 6px;
 }
+
+.btn-success:link,
+.btn-success:visited,
+.btn-success:hover,
+.btn-success:active,
+.btn-success {
+    background-color: #16A085;
+}

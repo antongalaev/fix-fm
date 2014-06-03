@@ -40,8 +40,8 @@ public class AuthServlet extends HttpServlet {
         try {
             user = userDao.selectByLogin(login);
         } catch (SQLException e) {
-            logger.severe(e.getMessage());
             resp.sendRedirect("/error");
+            return;
         }
 
         // if no such user, redirect to authentication page
@@ -51,7 +51,7 @@ public class AuthServlet extends HttpServlet {
         } else {  // or proceed to the main application page
             logger.info("User already in DB, redirect to fix page");
             req.getSession().setAttribute("token", user.getToken());
-            resp.sendRedirect("/fix");
+            resp.sendRedirect("/fixfm/fix");
         }
     }
 }

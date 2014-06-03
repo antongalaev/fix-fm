@@ -15,7 +15,7 @@ public class UserDao {
     private static Logger logger = Logger.getLogger(String.valueOf(UserDao.class));
 
     // db credentials
-    private static final String DB_URL = "jdbc:mysql://localhost/fixfm";
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/fixfm";
     private static final String DB_USER = "test";
     private static final String DB_PASS = "test";
 
@@ -29,6 +29,18 @@ public class UserDao {
     private ResultSet rs = null;
     private PreparedStatement ps = null;
     private Connection conn = null;
+
+    /**
+     * Public constructor.
+     * Registers the driver.
+     */
+    public UserDao() {
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            logger.severe(e.getMessage());
+        }
+    }
 
     /**
      * Insert a user into db.
