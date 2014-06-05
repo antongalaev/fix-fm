@@ -34,6 +34,7 @@ public class AuthServlet extends HttpServlet {
         logger.info("Got login = " + login);
         req.getSession().setAttribute("login", login);
 
+
         // check if user already in the db
         UserDao userDao = new UserDao();
         User user = null;
@@ -50,8 +51,37 @@ public class AuthServlet extends HttpServlet {
             resp.sendRedirect(AUTH_URL);
         } else {  // or proceed to the main application page
             logger.info("User already in DB, redirect to fix page");
-            req.getSession().setAttribute("token", user.getToken());
+//            req.getSession().setAttribute("token", user.getToken());
             resp.sendRedirect("/fixfm/fix");
+        }
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        logger.info("Inside doGet");
+        // extract user parameters
+        String login  = (String) req.getSession().getAttribute("login");
+        String token = req.getParameter("token");
+        logger.info("Authentication of user: " + login + " with token " + token);
+
+        // create API object
+        LastFmApi api = new LastFmApi();
+
+        // create a new user and save him to db
+        UserDao dao = new UserDao();
+        User user = null;
+        try {
+            // create user
+            user = new User();
+            user.setLogin(login);
+            // set sk field
+            api.setUserSessionKey(user, token);
+            // save
+            dao.insert(user);
+            resp.sendRedirect("/fixfm/fix");
+        } catch (SQLException e) {
+            logger.severe(e.getMessage());
+            resp.sendRedirect("/error");
         }
     }
 }

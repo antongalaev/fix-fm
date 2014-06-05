@@ -9,8 +9,6 @@ public class User {
 
     // user login
     private String login;
-    // user token
-    private String token;
     // user session key
     private String sessionKey;
 
@@ -22,14 +20,6 @@ public class User {
 
     public void setLogin(String login) {
         this.login = login;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
     }
 
     public String getSessionKey() {

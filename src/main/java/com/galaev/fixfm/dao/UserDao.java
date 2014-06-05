@@ -20,10 +20,10 @@ public class UserDao {
     private static final String DB_PASS = "test";
 
     // sql statements
-    private static final String SQL_INSERT = "insert into users (login, token) values(?, ?)";
-    private static final String SQL_UPDATE = "update users set token=? where login=?";
+    private static final String SQL_INSERT = "insert into users (login, sk) values(?, ?)";
+    private static final String SQL_UPDATE = "update users set sk=? where login=?";
     private static final String SQL_DELETE = "delete from users where login=?";
-    private static final String SQL_SELECT = "select token from users where login=?";
+    private static final String SQL_SELECT = "select sk from users where login=?";
 
     /* Database utilities */
     private ResultSet rs = null;
@@ -52,7 +52,7 @@ public class UserDao {
             conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
             ps = conn.prepareStatement(SQL_INSERT);
             ps.setString(1, user.getLogin());
-            ps.setString(2, user.getToken());
+            ps.setString(2, user.getSessionKey());
             ps.executeUpdate();
         } catch (SQLException e) {
             logger.severe(e.getMessage());
@@ -72,7 +72,7 @@ public class UserDao {
         try {
             conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
             ps = conn.prepareStatement(SQL_UPDATE);
-            ps.setString(1, user.getToken());
+            ps.setString(1, user.getSessionKey());
             ps.setString(2, user.getLogin());
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -122,7 +122,7 @@ public class UserDao {
                 String token = resultSet.getString(1);
                 result = new User();
                 result.setLogin(login);
-                result.setToken(token);
+                result.setSessionKey(token);
             }
         } catch (SQLException e) {
             logger.severe(e.getMessage());

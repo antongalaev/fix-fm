@@ -48,32 +48,21 @@ public class LastFmApi {
     // http client
     private CloseableHttpClient httpClient = HttpClients.createDefault();
 
-    // user, that wants to fix tags
-    private User user;
-
-    /**
-     * Public constructor, that creates
-     * new Api object to work with the provided user.
-     *
-     * @param user user, that wants to fix tags
-     */
-    public LastFmApi(User user) {
-        this.user = user;
-    }
-
     /**
      * Gets user session key from Last.fm api.
      * Sets the session key field in the {@code User} object here.
      *
      * @return session key
      * @throws IOException
+     * @param user user, that wants to get a session key
+     * @param token user token, received from Last.fm
      */
-    public String setUserSessionKey() throws IOException {
+    public String setUserSessionKey(User user, String token) throws IOException {
         logger.info("Trying to get user session key.");
         // sign api call
-        String api_sig = signApiGetCall("auth.getSession");
+        String api_sig = signApiGetCall("auth.getSession", token);
         // construct url
-        String authURL = String.format(API_CALL_AUTH, api_sig, user.getToken());
+        String authURL = String.format(API_CALL_AUTH, api_sig, token);
         // execute request
         try (CloseableHttpResponse response = httpClient.execute(new HttpGet(authURL))) {
             HttpEntity entity = response.getEntity();
@@ -91,10 +80,11 @@ public class LastFmApi {
      * Sets the corresponding field in the provided {@code Track} object.
      *
      * @param track track to find playcount for
+     * @param user user, that wants to fix tags
      * @return playcount
      * @throws IOException
      */
-    public int setTrackPlaycount(Track track) throws IOException {
+    public int setTrackPlaycount(Track track, User user) throws IOException {
         logger.info("Trying to get playcount.");
         // construct url
         String url = String.format(API_CALL_FIND_PLAYCOUNT,
@@ -115,9 +105,10 @@ public class LastFmApi {
      * Removes track from user library.
      *
      * @param track track to remove
+     * @param user user, that wants to fix tags
      * @throws IOException
      */
-    public void removeTrack(Track track) throws IOException {
+    public void removeTrack(Track track, User user) throws IOException {
         logger.info("Trying to remove track from library.");
         // create request and its entity form (alphabetically sorted here)
         HttpPost removeRequest = new HttpPost(API_ROOT_URL);
@@ -142,9 +133,10 @@ public class LastFmApi {
      * Scrobbles track to user library.
      *
      * @param track track to scrobble
+     * @param user user, that wants to fix tags
      * @throws IOException
      */
-    public void scrobbleTrack(Track track) throws IOException {
+    public void scrobbleTrack(Track track, User user) throws IOException {
         logger.info("Trying to scrobble track to the library.");
         // create request and its entity (form)
         HttpPost scrobbleRequest = new HttpPost(API_ROOT_URL);
@@ -183,12 +175,14 @@ public class LastFmApi {
 
     /**
      * Signs api GET call following Last.fm API rules.
+     * Used to acquire the session key.
      *
      * @param method api method to call
+     * @param token user token, received from Last.fm
      * @return signed string
      */
-    private String signApiGetCall(String method) {
-        String signed = "api_key" + API_KEY + "method" + method + "token" + user.getToken() + API_SECRET;
+    private String signApiGetCall(String method, String token) {
+        String signed = "api_key" + API_KEY + "method" + method + "token" + token + API_SECRET;
         return DigestUtils.md5Hex(signed);
     }
 

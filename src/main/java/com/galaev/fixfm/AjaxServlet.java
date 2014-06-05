@@ -41,34 +41,32 @@ public class AjaxServlet extends HttpServlet {
         logger.info("Inside doPost");
         // extract user parameters
         String login  = (String) req.getSession().getAttribute("login");
-        String token = (String) req.getSession().getAttribute("token");
-        logger.info("Logged as " + login + " with token " + token);
-        // create user
-        User user = new User();
-        user.setLogin(login);
-        user.setToken(token);
-        // save user if not already
+        logger.info("Logged as " + login);
+
+        // get user from DB
         UserDao dao = new UserDao();
+        User user = null;
         try {
-            if (dao.selectByLogin(login) == null) {
-                dao.insert(user);
+            user = dao.selectByLogin(login);
+            if (user == null) {
+                resp.sendRedirect("/error");
+                return;
             }
         } catch (SQLException e) {
             logger.severe(e.getMessage());
         }
 
-        // create API object and set session key
-        LastFmApi api = new LastFmApi(user);
-        api.setUserSessionKey();
-
         // create track
         Track track = new Track();
         track.populateWithPostData(req);
+
+        // create API object
+        LastFmApi api = new LastFmApi();
         // set playcount
-        api.setTrackPlaycount(track);
+        api.setTrackPlaycount(track, user);
         // actually fix the problem
-        api.removeTrack(track);
-        api.scrobbleTrack(track);
+        api.removeTrack(track, user);
+        api.scrobbleTrack(track, user);
 
         // write result
         PrintWriter responseWriter = resp.getWriter();

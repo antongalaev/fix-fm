@@ -17,11 +17,12 @@ public class UserDaoTest {
         dao = new UserDao();
         user = new User();
         user.setLogin("login");
-        user.setToken("token");
+        user.setSessionKey("token");
     }
 
     @Test
     public void testDao() throws Exception {
+
     }
 
 

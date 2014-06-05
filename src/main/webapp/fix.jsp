@@ -1,14 +1,4 @@
-<%@ page import="java.util.logging.Logger" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%! static Logger logger = Logger.getLogger("fix"); %>
-<%
-    String token = request.getParameter("token");
-    if (token != null) {
-        session.setAttribute("token", token);
-        logger.info("Token acquired: " + token);
-    }
-    logger.info("Token is null");
-%>
 <html>
 <head>
     <title>FixFm Service</title>
@@ -39,7 +29,7 @@
             <label for="new">New Song Tag</label>
             <input type="text" class="form-control" id="new" name="new" placeholder="Enter new tag">
         </div>
-        <button type="button" class="btn btn-success btn-lg">Fix</button>
+        <button type="button" class="btn btn-success btn-lg btn-color">Fix</button>
     </form>
 </div>
 
