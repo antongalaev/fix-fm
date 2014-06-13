@@ -29,7 +29,7 @@
             <label for="new">New Song Tag</label>
             <input type="text" class="form-control" id="new" name="new" placeholder="Enter new tag">
         </div>
-        <button type="button" class="btn btn-success btn-lg btn-color">Fix</button>
+        <button type="button" class="btn btn-success btn-lg" style="background-color: #16A085">Fix</button>
     </form>
 </div>
 

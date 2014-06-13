@@ -33,11 +33,12 @@ public class AuthServlet extends HttpServlet {
         String login = req.getParameter("login");
         logger.info("Got login = " + login);
         req.getSession().setAttribute("login", login);
+        req.getSession().setMaxInactiveInterval(-1);
 
 
         // check if user already in the db
         UserDao userDao = new UserDao();
-        User user = null;
+        User user;
         try {
             user = userDao.selectByLogin(login);
         } catch (SQLException e) {
@@ -52,7 +53,7 @@ public class AuthServlet extends HttpServlet {
         } else {  // or proceed to the main application page
             logger.info("User already in DB, redirect to fix page");
 //            req.getSession().setAttribute("token", user.getToken());
-            resp.sendRedirect("/fixfm/fix");
+            resp.sendRedirect("/fix");
         }
     }
 
@@ -69,7 +70,7 @@ public class AuthServlet extends HttpServlet {
 
         // create a new user and save him to db
         UserDao dao = new UserDao();
-        User user = null;
+        User user;
         try {
             // create user
             user = new User();
@@ -78,9 +79,8 @@ public class AuthServlet extends HttpServlet {
             api.setUserSessionKey(user, token);
             // save
             dao.insert(user);
-            resp.sendRedirect("/fixfm/fix");
+            resp.sendRedirect("/fix");
         } catch (SQLException e) {
-            logger.severe(e.getMessage());
             resp.sendRedirect("/error");
         }
     }
